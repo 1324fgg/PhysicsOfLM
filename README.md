@@ -2,11 +2,16 @@ First version createDataset.ipynb done by Fiona
 
 Using Python 3.11
 
-PTH is not open sourced and no similar gold is found
+# data
 
 PTB location: /metadata/data/corpora at machine songcpu0
 
+extra parser data: /metadata/data/corpora/aser/datas
+
+# RL reward
+
 reward1: design a new reward based on goal
+
 reward2: 1. cfg rule -> generate data -> judge using llm judge, distillate cfg tree, to see the preplexity
 # Todo
 
