@@ -1,6 +1,5 @@
-from torchtext.datasets import IMDB
-
-
+# input: a corpus dataset
+# output: cfg rules
 
 def rules3b():
     rules3b = {
@@ -23,12 +22,8 @@ def rules3b():
     }
     return rules3b
 
-def rules_ptb():
-    ds = IMDB(split='train')
-    for i in ds:
-        return i
 
-def summriseRule():
+def summriseRule(dataset='handcrafted'):
     '''
     Given a dataset, this function summary it's distribution
     and give cfg rule depending on arguments
@@ -37,7 +32,8 @@ def summriseRule():
     parser:  the parser of the dataset if dataset is not gold
     rule:    the final cfg rule from the dataset
     '''
-    dataset = ''
+    if dataset == 'handcrafted':
+        return rules3b()
     rule = ''
     return rule
     pass

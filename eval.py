@@ -7,10 +7,11 @@ import argparse
 
 # custumer code
 import cfg
+import tasks
 
-def main():
+def main(test_model, cfg_ds, test_flag = False):
     # 1. 定义CFG规则
-    rules3b = cfg.rules3b()
+    rules3b = cfg.summriseRule()
 
     # 2. 生成样本的函数
     def generate_sample(root):
@@ -59,16 +60,20 @@ def main():
     train_dataloader = DataLoader(train_dataset, batch_size=96)
 
     # 7. 初始化模型
-    model = CustomGPTModel.from_pretrained("gpt2")
+    model = CustomGPTModel.from_pretrained(test_model)
 
     # 8. 训练模型
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset,
-    )
+    if not test_flag:
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset,
+        )
 
-    trainer.train()
+        trainer.train()
+    # during testing don't train
+    # just save a small batch(4-64?) as pickel
+    # and use it to test our recreated task
 
     # 9. 定义评估函数
     def evaluate(model, dataloader):
@@ -83,6 +88,8 @@ def main():
                 # 这里假设我们有真实标签，labels需要通过某种方式定义
                 # correct_predictions += (predicted == labels).sum().item()
                 # total_predictions += labels.size(0)
+
+                # import tasks in tasks.py for evaluation
 
         # accuracy = correct_predictions / total_predictions
         # return accuracy
@@ -99,4 +106,30 @@ def test():
     pass
 
 if __name__ == "__main__":
-    test()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "model", 
+        nargs='?', 
+        default='gpt2', 
+        type=str, 
+        help="model to be evaluated; for example `gpt2`.",
+    )
+    parser.add_argument(
+        "dataset",
+        nargs='?', 
+        default='handcrafted', 
+        type=str,
+        choices=["wikitext2", "ptb", "c4", "handcrafted"],
+        help="Where to summarize cfg rules data from.",
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="disable training, using stored pkl for functional testing",
+    )
+
+    args = parser.parse_args()
+
+    main(args.model, args.dataset, args.test)
+    # test()
