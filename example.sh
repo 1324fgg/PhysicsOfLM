@@ -1,0 +1,1 @@
+python eval.py gpt2 "C:\Users\johnn\OneDrive\Documents\BDT\otherProject\data\LDC99T42\treebank_3\parsed\mrg\wsj" --test

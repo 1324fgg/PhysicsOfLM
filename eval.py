@@ -11,7 +11,7 @@ import tasks
 
 def main(test_model, cfg_ds, test_flag = False):
     # 1. 定义CFG规则
-    rules3b = cfg.summriseRule()
+    rules3b = cfg.summriseRule(cfg_ds)
 
     # 2. 生成样本的函数
     def generate_sample(root):
@@ -98,9 +98,9 @@ def main(test_model, cfg_ds, test_flag = False):
     # accuracy = evaluate(model, train_dataloader)
     # print(f'Accuracy: {accuracy:.4f}')
 
-def test():
+def test(cfg_ds):
     # testing getting cfg rules for a dataset/hardcoded
-    rules = cfg.rules_ptb()
+    rules = cfg.summriseRule(cfg_ds)
 
     print(rules)
     pass
@@ -120,8 +120,7 @@ if __name__ == "__main__":
         nargs='?', 
         default='handcrafted', 
         type=str,
-        choices=["wikitext2", "ptb", "c4", "handcrafted"],
-        help="Where to summarize cfg rules data from.",
+        help="Path to data, where to summarize cfg rules from.",
     )
     parser.add_argument(
         "--test",
@@ -131,5 +130,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(args.model, args.dataset, args.test)
-    # test()
+    # main(args.model, args.dataset, args.test)
+    test(args.dataset)

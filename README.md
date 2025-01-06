@@ -26,3 +26,10 @@ recreate [Physics of LM 1](https://arxiv.org/pdf/2305.13673)
 # Usage
 
 py eval.py to perform evaluation on given corpus for it's physics on given model
+
+# Files
+
+|dir|Usage|
+|--|--|
+|data|source corpus for cfg rules generation|
+|result|resulted cfg rules|
