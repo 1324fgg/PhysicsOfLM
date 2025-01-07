@@ -29,17 +29,24 @@ def updateRule(rule, parent, child):
         rule[parent] = {}
     if child not in rule[parent]:
         rule[parent][child] = 0
-    print(child)
+    # print(child)
     rule[parent][child] += 1
     return rule
 
 def readTree(tree):
     # may have bug
+
+    # for child frequency
     print(tree)
     stack = []
     pStack = []
     currentRule = {}
     current = ''
+
+    # for children combination frequency
+    currentChildernRule = {}
+    dfsStack = {}
+
     for c in tree:
         if c == '(':
             stack.append(c)
@@ -51,20 +58,65 @@ def readTree(tree):
         elif c == ')':
             stack.pop(-1)
             current = current.strip() 
+            print('current: |{}|'.format(current))
+            print('pStack: |{}|'.format(pStack))
+            # use path to node since node can be child of itself
+            currentNode = '>'.join(pStack)
             if current != '':
                 current = current.split(' ')[0]
                 currentRule = updateRule(currentRule, pStack[-1], current)
+
+                if currentNode not in dfsStack:
+                    dfsStack[currentNode] = []
+                dfsStack[currentNode].append(current)
             else:
                 try:
                     current = pStack.pop(-1)
                     currentRule = updateRule(currentRule, pStack[-1], current)
+                    # print(dfsStack)
+                    print(pStack)
+                    print(current)
+                    currentChildernRule = updateRule(
+                        currentChildernRule, 
+                        current, 
+                        '|'.join(dfsStack[currentNode])
+                    )
+                    # delete the used node as left and right child can be the same
+                    dfsStack.pop(currentNode, None)
+
+                    # update dfsStack
+                    currentNode = '>'.join(pStack)
+                    if currentNode not in dfsStack:
+                        dfsStack[currentNode] = []
+                    dfsStack[currentNode].append(current)
+
                 except IndexError:
+                    print('rooting: ', dfsStack, '\tcurrent Node: ', currentNode)
+                    currentChildernRule = updateRule(
+                        currentChildernRule, 
+                        current, 
+                        '|'.join(dfsStack[currentNode])
+                    )
+                    # delete the used node as left and right child can be the same
+                    dfsStack.pop(currentNode, None)
+
+                    print('after root del', dfsStack)
+
+                    # update dfsStack
+                    if currentNode != '':
+                        currentNode = '>'.join(pStack)
+                        if currentNode not in dfsStack:
+                            dfsStack[currentNode] = []
+                        dfsStack[currentNode].append(current)
+
+                    print('after root add', dfsStack)
                     pass
             current = ''
         else:
             current += c
     
-    print(currentRule)
+    # print(currentRule)
+    print(currentChildernRule)
     return currentRule
 
 def mergeRule(x, y):
@@ -96,19 +148,21 @@ def summriseRule(dataset='handcrafted'):
     else:
         rules = {}
 
+        testCount = 0
+
         for root, _, files in os.walk(dataset):
             for file in files:
                 if file.endswith('.mrg'):
                     with open(os.path.join(root, file)) as f:
                         rules = mergeRule(rules, readTree(f.read()))
-            #         innerTestCount += 1
-            #     if innerTestCount == 2:
-            #         break
-            # testCount += 1
-            # if testCount == 2:
-            #     break
+                #     innerTestCount += 1
+                # if innerTestCount == 2:
+                    break
+            testCount += 1
+            if testCount == 2:
+                break
 
-        print(rules)
+        # print(rules)
         # save rules, hard code for now, upgrade to args later
         return rules
     pass
