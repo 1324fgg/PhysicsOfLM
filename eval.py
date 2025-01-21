@@ -102,7 +102,7 @@ def test(cfg_ds):
     # testing getting cfg rules for a dataset/hardcoded
     rules = cfg.summriseRule(cfg_ds)
 
-    print(rules)
+    # print(rules)
     pass
 
 if __name__ == "__main__":

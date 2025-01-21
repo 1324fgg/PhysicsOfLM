@@ -1,6 +1,8 @@
 import os
+import pickle
+from tqdm import tqdm
 
-# input: a corpus dataset
+# input: a corp  us dataset
 # output: cfg rules
 
 def rules3b():
@@ -37,7 +39,7 @@ def readTree(tree):
     # may have bug
 
     # for child frequency
-    print(tree)
+    # print(tree)
     stack = []
     pStack = []
     currentRule = {}
@@ -52,14 +54,14 @@ def readTree(tree):
             stack.append(c)
             current = current.strip() 
             if current != '':
-                print(current)
+                # print(current)
                 pStack.append(current)
             current = ''
         elif c == ')':
             stack.pop(-1)
             current = current.strip() 
-            print('current: |{}|'.format(current))
-            print('pStack: |{}|'.format(pStack))
+            # print('current: |{}|'.format(current))
+            # print('pStack: |{}|'.format(pStack))
             # use path to node since node can be child of itself
             currentNode = '>'.join(pStack)
             if current != '':
@@ -74,8 +76,8 @@ def readTree(tree):
                     current = pStack.pop(-1)
                     currentRule = updateRule(currentRule, pStack[-1], current)
                     # print(dfsStack)
-                    print(pStack)
-                    print(current)
+                    # print(pStack)
+                    # print(current)
                     currentChildernRule = updateRule(
                         currentChildernRule, 
                         current, 
@@ -91,7 +93,7 @@ def readTree(tree):
                     dfsStack[currentNode].append(current)
 
                 except IndexError:
-                    print('rooting: ', dfsStack, '\tcurrent Node: ', currentNode)
+                    # print('rooting: ', dfsStack, '\tcurrent Node: ', currentNode)
                     currentChildernRule = updateRule(
                         currentChildernRule, 
                         current, 
@@ -100,7 +102,7 @@ def readTree(tree):
                     # delete the used node as left and right child can be the same
                     dfsStack.pop(currentNode, None)
 
-                    print('after root del', dfsStack)
+                    # print('after root del', dfsStack)
 
                     # update dfsStack
                     if currentNode != '':
@@ -109,15 +111,15 @@ def readTree(tree):
                             dfsStack[currentNode] = []
                         dfsStack[currentNode].append(current)
 
-                    print('after root add', dfsStack)
+                    # print('after root add', dfsStack)
                     pass
             current = ''
         else:
             current += c
     
     # print(currentRule)
-    print(currentChildernRule)
-    return currentRule
+    # print(currentChildernRule)
+    return currentRule, currentChildernRule
 
 def mergeRule(x, y):
     # may have bug
@@ -133,7 +135,7 @@ def mergeRule(x, y):
                     merged[k][sub_k] += sub_v
     return merged
 
-def summriseRule(dataset='handcrafted'):
+def summriseRule(dataset='handcrafted', savePath='./results/'):
     '''
     Given a dataset, this function summary it's distribution
     and give cfg rule depending on arguments
@@ -146,7 +148,8 @@ def summriseRule(dataset='handcrafted'):
     if dataset == 'handcrafted':
         return rules3b()
     else:
-        rules = {}
+        childRules = {}
+        childComboRules = {}
 
         testCount = 0
 
@@ -154,15 +157,26 @@ def summriseRule(dataset='handcrafted'):
             for file in files:
                 if file.endswith('.mrg'):
                     with open(os.path.join(root, file)) as f:
-                        rules = mergeRule(rules, readTree(f.read()))
+                        childFreq, childComboFreq = readTree(f.read())
+                        childRules = mergeRule(childRules, childFreq)
+                        childComboRules = mergeRule(childComboRules, childComboFreq)
                 #     innerTestCount += 1
                 # if innerTestCount == 2:
-                    break
-            testCount += 1
-            if testCount == 2:
-                break
+                    # break
+            # testCount += 1
+            # if testCount == 2:
+            #     break
 
         # print(rules)
         # save rules, hard code for now, upgrade to args later
-        return rules
+        childRulesPath = savePath + 'childRules.pkl'
+        childComboRulesPath = savePath + 'childComboRules.pkl'
+        print('childRules', childRules)
+        # print('='*50)
+        # print('childComboRules', childComboRules)
+        with open(childRulesPath, 'wb') as f:
+            pickle.dump(childRules, f, protocol=pickle.HIGHEST_PROTOCOL)
+        with open(childComboRulesPath, 'wb') as f:
+            pickle.dump(childComboRules, f, protocol=pickle.HIGHEST_PROTOCOL)
+        return childRules
     pass
